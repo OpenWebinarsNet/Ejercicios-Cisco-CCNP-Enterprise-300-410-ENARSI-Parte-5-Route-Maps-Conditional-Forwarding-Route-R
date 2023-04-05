@@ -1,0 +1,129 @@
+CCNP ENARSI
+Curso: Path control y redistribución de rutas
+Laboratorio: Configuración PBR
+Firmware: Routers  -> c7200-advipservicesk9-mz.152-4.S5.bin
+      
+	  
+Escenario: Una oficina de Openwebinars dispone de doble conexión a internet, se requiere forzar el tráfico de una de las redes LAN por un ISP y la otra red LAN por el otro ISP
+
+Completa las siguientes tareas para aplicar Policy Based Routing (PBR)
+
+
+Realiza una trace desde PC1 y PC2 hacía la IP 8.8.8.8, hay conexión, en que salto se queda ?
+
+Respuesta: No, el salto se queda en R1 en ambos casos
+
+PC1> trace 8.8.8.8
+trace to 8.8.8.8, 8 hops max, press Ctrl+C to stop
+ 1   10.1.1.1   15.347 ms  15.214 ms  15.390 ms
+ 2   *10.1.1.1   15.273 ms (ICMP type:3, code:1, Destination host unreachable)
+
+PC1>
+
+
+PC2> trace 8.8.8.8
+trace to 8.8.8.8, 8 hops max, press Ctrl+C to stop
+ 1   10.2.2.1   15.333 ms  15.169 ms  15.215 ms
+ 2   *10.2.2.1   15.060 ms (ICMP type:3, code:1, Destination host unreachable)
+
+PC2>
+_____________________________________________________________________________________
+
+2. Configura la access-list estándar 10 para filtrar el tráfico de la red LAN 1 de R1 (10.1.1.0/24)
+
+R1#
+R1#conf t
+R1(config)#
+R1(config)#access-list 10 permit 10.1.1.0 0.0.0.255
+R1(config)#end
+R1#
+_____________________________________________________________________________________
+
+3. Configura la access-list estándar 20 para filtrar el tráfico de la red LAN 2 de R1 (10.2.2.0/24)
+
+R1#
+R1#conf t
+R1(config)#access-list 20 permit 10.2.2.0 0.0.0.255
+R1(config)#end
+R1#
+_____________________________________________________________________________________
+
+4. Configura un route-map nombrado como CCNP, la secuencia 10 deber ser de autorización y hacer match sobre la ACL 10 y la acción debe ser enviar el tráfico al next-hop 1.1.1.2 (R2 - ISP-A)
+
+R1#
+R1#conf t
+R1(config)#
+R1(config)#route-map CCNP permit 10
+R1(config-route-map)#match ip address 10
+R1(config-route-map)#set ip next-hop 1.1.1.2
+R1(config-route-map)#end
+R1#
+_____________________________________________________________________________________
+
+5. Configura la secuencia 20 del route-map nombrado como CCNP, deber ser de autorización y hacer match sobre la ACL 20 y la acción debe ser enviar el tráfico al next-hop 2.2.2.2 (R2 - ISP-B)
+
+R1#
+R1#conf t
+R1(config)#route-map CCNP permit 20
+R1(config-route-map)#match ip address 20
+R1(config-route-map)#set ip next-hop 2.2.2.2
+R1(config-route-map)#end
+R1#
+_____________________________________________________________________________________
+
+6. Aplica el router-map CCNP en las interfaces f0/0 y f3/0 de R1
+
+R1#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+R1(config)#int fa0/0
+R1(config-if)#ip policy route-map CCNP
+R1(config-if)#
+R1(config-if)#exit
+R1(config)#int fa3/0
+R1(config-if)#ip policy route-map CCNP
+R1(config-if)#end
+R1#
+_____________________________________________________________________________________
+
+7. Realiza un trace desde PC1 y PC2 hacía la IP 8.8.8.8, hay conexión, en que salto se queda ?
+
+Respuesta: no hay conexión, pero en el caso de PC1 el salto se queda en R2 (1.1.1.2) y desde PC2 se queda en R3 (2.2.2.2)
+
+PC1> trace 8.8.8.8
+trace to 8.8.8.8, 8 hops max, press Ctrl+C to stop
+ 1   10.1.1.1   30.396 ms  15.214 ms  15.365 ms
+ 2   *1.1.1.2   45.302 ms (ICMP type:3, code:3, Destination port unreachable)
+
+PC1>
+
+PC2> trace 8.8.8.8
+trace to 8.8.8.8, 8 hops max, press Ctrl+C to stop
+ 1   10.2.2.1   15.344 ms  15.266 ms  15.178 ms
+ 2   *2.2.2.2   45.343 ms (ICMP type:3, code:3, Destination port unreachable)
+_____________________________________________________________________________________
+
+8. Verifica el PBR CCNP, para poder visualizar su aplicación y el número de matches que se han producido para cada secuencia
+
+R1#
+R1#show ip policy
+Interface      Route map
+local          pbr-pc1
+Fa0/0          CCNP
+Fa3/0          CCNP
+R1#
+R1#show route-map CCNP
+route-map CCNP, permit, sequence 10
+  Match clauses:
+    ip address (access-lists): 10
+  Set clauses:
+    ip next-hop 1.1.1.2
+    interface FastEthernet1/0
+  Policy routing matches: 36 packets, 3816 bytes
+route-map CCNP, permit, sequence 20
+  Match clauses:
+    ip address (access-lists): 20
+  Set clauses:
+    ip next-hop 2.2.2.2
+  Policy routing matches: 12 packets, 1272 bytes
+R1#
+_____________________________________________________________________________________

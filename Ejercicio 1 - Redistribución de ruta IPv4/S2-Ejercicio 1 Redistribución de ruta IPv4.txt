@@ -1,0 +1,26 @@
+CCNP ENARSI
+Curso: Path control y redistribución de rutas
+Laboratorio: Redistribución de ruta IPv4
+Firmware: Routers  -> c7200-advipservicesk9-mz.152-4.S5.bin
+      
+	  
+Escenario: Openwebinars tiene implementado EIGRP y requiere brindar conexión con un nuevo proveedor que emplea OSPF 
+
+Completa los siguientes puntos para configurar redistribución de ruta entre Openwebinars y el nuevo proveedor
+
+
+1. Cómo se conocen en R2 las redes LAN de R1 (10.1.1.0/24 y 10.1.2.0/24) y R3 (172.16.1.0/24 y 172.16.2.0/24), existe conectividad desde R2 hacía las IP's de R1 y R3 en dichas en redes (.1) ?
+2. Hay conectividad desde R1 a las redes LAN de R3 (172.16.1.0/24 y 172.16.2.0/24) ?
+3. Hay conectividad desde R3 a las redes LAN de R1 (10.1.1.0/24 y 10.1.2.0/24) ?
+4. Redistribuye en el proceso OSPF id-1 de R2 las rutas del proceso EIGRP con AS 100 con una métrica 10 y deben incluirse las subredes
+5. Redistribuye en el proceso EIGRP con AS 100 de R2 las rutas del proceso OSPF id-1, debe asignarse una métrica inicial o seed metric con 1 Mb, un delay de 10 ms, un 255% de reliability, una carga o load de 100 y una MTU de 1500
+6. Hay conectividad desde R1 a las redes LAN de R3 (172.16.1.0/24 y 172.16.2.0/24) ? A través de qué rutas se aprenden ?
+7. Hay conectividad desde R3 a las redes LAN de R1 (10.1.1.0/24 y 10.1.2.0/24) ? A través de qué rutas se aprenden ?
+
+
+
+
+
+
+
+
